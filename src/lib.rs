@@ -23,8 +23,8 @@ pub type SampleRate = usize;
 /// The duration of a signal's period, in number of samples.
 type Period = usize;
 
-/// A frequency analyser.
-pub struct Analyser<F> {
+/// A frequency analyzer.
+pub struct Analyzer<F> {
     /// The sampling rate of the input signal.
     sample_rate: SampleRate,
     /// The minimum duration of the signal's period, in number of samples.
@@ -37,10 +37,10 @@ pub struct Analyser<F> {
     _unused: PhantomData<F>,
 }
 
-impl<F> Analyser<F>
+impl<F> Analyzer<F>
     where F: Float + FromPrimitive
 {
-    /// Create a new analyser.
+    /// Create a new analyzer.
     ///
     /// # Arguments:
     ///
@@ -49,7 +49,7 @@ impl<F> Analyser<F>
     /// - `max_freq`: The maximum frequency to detect, in Hz.
     ///
     fn new(sample_rate: SampleRate, min_period: usize, max_period: usize) -> Self {
-        Analyser {
+        Analyzer {
             sample_rate: sample_rate,
             min_period: min_period,
             max_period: max_period,
@@ -79,7 +79,7 @@ impl<F> Analyser<F>
 
     /// Get the calculated frequency, in Hz.
     ///
-    /// Returns `None` if the method `Analyser::input()` hasn't been called.
+    /// Returns `None` if the method `Analyzer::input()` hasn't been called.
     #[inline]
     pub fn get_freq(&self) -> Option<F> {
         if self.detected_period > 0 {
@@ -106,7 +106,7 @@ fn amdf<N, F>(samples: &[N], period: usize) -> F
 }
 
 
-/// Create an an Analyser.
+/// Create an an Analyzer.
 pub struct Builder {
     sample_rate: SampleRate,
     min_freq: usize,
@@ -140,8 +140,8 @@ impl Builder {
         self
     }
 
-    /// Build the analyser.
-    pub fn finalize<F>(&self) -> Result<Analyser<F>, &'static str>
+    /// Build the analyzer.
+    pub fn finalize<F>(&self) -> Result<Analyzer<F>, &'static str>
         where F: Float + FromPrimitive
     {
         if self.sample_rate == 0 {
@@ -151,7 +151,7 @@ impl Builder {
         } else {
             let min_period = self.sample_rate / self.max_freq;
             let max_period = self.sample_rate / self.min_freq;
-            Ok(Analyser::new(self.sample_rate, min_period, max_period))
+            Ok(Analyzer::new(self.sample_rate, min_period, max_period))
         }
     }
 }
